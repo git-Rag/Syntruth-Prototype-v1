@@ -19,10 +19,3 @@ pip install -r requirements.txt
 streamlit run app.py
 ```
 4. Open http://localhost:8501
-
-## Notes
-- This demo uses lightweight heuristics so it runs without heavy ML dependencies.
-- To integrate real models, implement wrappers in `models/phishing_model.py` and `utils/deepfake_detector.py` and swap calls in `app.py`.
-
-## License
-MIT
