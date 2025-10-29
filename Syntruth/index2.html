@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SynTruth — Prototype</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#0f1720; --muted:#9aa6b2; --accent:#06b6d4; --danger:#ff6b6b; --card:#0b1220;
+    --glass: rgba(255,255,255,0.03);
+  }
+  *{box-sizing:border-box}
+  body {font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial; margin:0; background:linear-gradient(180deg,#04060a 0%, #071023 100%); color:#e6eef6}
+  .app {display:flex; height:100vh; gap:18px; padding:20px;}
+  /* Sidebar */
+  .sidebar {width:220px; background:var(--panel); border-radius:12px; padding:18px; display:flex; flex-direction:column; gap:12px; box-shadow:0 6px 30px rgba(2,6,23,0.6);}
+  .logo {display:flex; align-items:center; gap:10px; font-weight:700; font-size:18px; color:var(--accent)}
+  .nav {display:flex; flex-direction:column; gap:8px; margin-top:6px}
+  .nav button {background:transparent; color:var(--muted); border:none; text-align:left; padding:10px; border-radius:8px; cursor:pointer}
+  .nav button.active, .nav button:hover{background:var(--glass); color:#fff}
+  .small {font-size:12px; color:var(--muted)}
+  .uploader {margin-top:6px; display:flex; flex-direction:column; gap:8px}
+  .file {background:#071525; padding:8px; border-radius:8px; color:var(--muted); border:1px dashed rgba(255,255,255,0.03);}
+  .btn {background:linear-gradient(90deg,var(--accent), #00d4ff); color:#00121a; border:none; padding:10px 14px; border-radius:10px; font-weight:600; cursor:pointer}
+  /* Main */
+  .main {flex:1; display:flex; flex-direction:column; gap:12px;}
+  .top-row {display:flex; gap:12px;}
+  .card {background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border-radius:12px; padding:14px; box-shadow:0 6px 20px rgba(2,6,23,0.5); border:1px solid rgba(255,255,255,0.02)}
+  .preview {flex:1; min-height:380px; display:flex; flex-direction:column; gap:12px}
+  .preview .title {display:flex; justify-content:space-between; align-items:center}
+  .email-box {background:#071526; padding:12px; border-radius:10px; color:#cfeaf6; overflow:auto; max-height:280px; border:1px solid rgba(255,255,255,0.02)}
+  .media-preview {height:260px; border-radius:10px; background:linear-gradient(90deg,#021018,#061a26); display:flex; align-items:center; justify-content:center; color:var(--muted)}
+  .highlight {background:rgba(6,182,212,0.12); color:var(--accent); padding:2px 6px; border-radius:6px; font-weight:600}
+  /* Right column */
+  .right {width:360px; display:flex; flex-direction:column; gap:12px}
+  .gauge {height:160px; display:flex; align-items:center; justify-content:center}
+  .score {font-size:36px; font-weight:800; letter-spacing:1px}
+  .badges {display:flex; gap:10px; margin-top:8px}
+  .badge {background:rgba(255,255,255,0.03); padding:8px 10px; border-radius:10px; color:var(--muted); font-weight:600}
+  .list {display:flex; flex-direction:column; gap:8px; margin-top:8px}
+  .flag {background:linear-gradient(90deg, rgba(255,107,107,0.06), rgba(255,107,107,0.02)); color:var(--danger); padding:8px 10px; border-radius:8px; font-weight:600}
+  .explain {font-size:13px; color:var(--muted); line-height:1.4}
+  /* footer area */
+  .bottom {display:flex; gap:12px}
+  .log {flex:1; min-height:120px; padding:12px; overflow:auto; font-family:monospace; font-size:13px; color:#bfe9f2}
+  .actions {width:220px; display:flex; flex-direction:column; gap:8px; align-items:stretch}
+  /* small responsiveness */
+  @media (max-width:1100px){ .right {display:none} .app{flex-direction:column} .sidebar{width:100%} .actions{width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar card">
+    <div class="logo">🔐 SynTruth</div>
+    <div class="small">Prototype • Dark UI • Demo</div>
+    <nav class="nav">
+      <button class="active" onclick="showTab('analyze')">Analyze</button>
+      <button onclick="showTab('history')">History</button>
+      <button onclick="showTab('settings')">Settings</button>
+      <button onclick="showTab('api')">API Access</button>
+    </nav>
+
+    <div class="uploader">
+      <div class="small">Paste email text</div>
+      <textarea id="emailInput" placeholder="Paste raw email here..." rows="6" style="resize:none;border-radius:8px;padding:8px;background:#051622;color:#dff6fb;border:1px solid rgba(255,255,255,0.03)"></textarea>
+      <div class="small">Or upload an image/video (demo)</div>
+      <input id="mediaFile" type="file" accept="image/*,video/mp4" />
+      <div style="display:flex;gap:8px;margin-top:6px; flex-wrap:wrap">
+        <button class="btn" onclick="analyze()">Analyze</button>
+        <button class="btn" style="background:#0b1220;color:var(--accent)" onclick="sampleEmail()">Sample Email</button>
+        <button class="btn" style="background:#ff6b6b;color:#fff" onclick="demoPhishing()">Demo Code 1</button>
+        <button class="btn" style="background:#06b6d4;color:#00121a" onclick="demoDeepfake()">Demo Code 2</button>
+      </div>
+    </div>
+    <div style="margin-top:auto;font-size:12px;color:var(--muted)">Team SynTruth • 36-hr Hackathon</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="top-row">
+      <div class="preview card">
+        <div class="title">
+          <div>
+            <div style="font-weight:700">Preview</div>
+            <div class="small">Email / Media preview with highlights</div>
+          </div>
+          <div class="small">User: demo_user@example.com</div>
+        </div>
+
+        <div id="previewArea" style="display:flex;gap:12px">
+          <div style="flex:1">
+            <div class="email-box" id="emailPreview">
+              <div style="opacity:0.7;margin-bottom:8px" id="emailHeader">From: support@faceb00k.com • Subject: Account verification required</div>
+              <div id="emailBody">Dear user, please verify your account at http://secure-login.faceb00k.verify-now.com/login to avoid suspension. Click here to verify your password.</div>
+            </div>
+            <div style="height:12px"></div>
+            <div class="media-preview" id="mediaPreview">No media uploaded — upload an image or short video to simulate deepfake analysis.</div>
+          </div>
+          <div style="width:220px; display:flex;flex-direction:column;gap:8px; justify-content:center; align-items:center">
+            <div style="width:200px;text-align:center">
+              <div style="font-size:12px;color:var(--muted)">TrustScore</div>
+              <div class="score" id="trustScore">100%</div>
+              <div class="badges">
+                <div class="badge" id="phishBadge">Phishing: —</div>
+                <div class="badge" id="deepBadge">Deepfake: —</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <aside class="right">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div style="font-weight:700">Risk Summary</div>
+            <div class="small">Realtime • Explainable</div>
+          </div>
+          <div class="list" id="flagsList">
+            <div class="small">No analysis run yet.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:6px">Explainable Risks</div>
+          <div class="explain" id="explainText">Highlights will appear here after analysis. The system shows suspicious links, senders, and visual anomalies.</div>
+        </div>
+
+        <div class="card">
+          <div style="font-weight:700;margin-bottom:6px">Actions</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn" onclick="downloadReport()">Download Report</button>
+            <button class="btn" style="background:#0b1220;color:var(--accent)" onclick="clearAll()">Reset</button>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <div class="bottom">
+      <div class="card log" id="logArea">Console log: ready.</div>
+      <div class="card actions">
+        <div style="font-weight:700;margin-bottom:6px">Tune Scoring (Demo)</div>
+        <label class="small">Phishing weight</label>
+        <input id="phishWeight" type="range" min="0" max="2" value="1" step="0.1" />
+        <label class="small">Deepfake weight</label>
+        <input id="deepWeight" type="range" min="0" max="2" value="1" step="0.1" />
+        <div style="height:8px"></div>
+        <div class="small">Note: this is a prototype. Advanced model integration required for production.</div>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script>
+  function sampleEmail(){
+    const sample = `From: support@faceb00k.com
+Subject: Urgent: Verify your account now
+Body:
+Dear user,
+Your account is at risk. Please verify by visiting http://secure-login.faceb00k.verify-now.com/login and provide your password to avoid suspension.`;
+    document.getElementById('emailInput').value = sample;
+    document.getElementById('emailBody').innerText = sample;
+    document.getElementById('emailPreview').scrollTop = 0;
+  }
+
+  function clearAll(){
+    document.getElementById('emailInput').value = '';
+    document.getElementById('mediaFile').value = '';
+    document.getElementById('emailBody').innerText = 'No email content.';
+    document.getElementById('mediaPreview').innerText = 'No media uploaded — upload an image or short video to simulate deepfake analysis.';
+    updateUIDefaults();
+    log('Reset complete.');
+  }
+
+  function updateUIDefaults(){
+    document.getElementById('trustScore').innerText = '100%';
+    document.getElementById('phishBadge').innerText = 'Phishing: —';
+    document.getElementById('deepBadge').innerText = 'Deepfake: —';
+    document.getElementById('flagsList').innerHTML = '<div class="small">No analysis run yet.</div>';
+    document.getElementById('explainText').innerText = 'Highlights will appear here after analysis. The system shows suspicious links, senders, and visual anomalies.';
+  }
+
+  function log(msg){
+    const logArea = document.getElementById('logArea');
+    const ts = new Date().toLocaleTimeString();
+    logArea.innerText = `[${ts}] ${msg}\n` + logArea.innerText;
+  }
+
+  // Demo 1: Phishing Email scenario
+  function demoPhishing(){
+    const emailText = 'Detected: Suspicious link → secure-verify-login.com';
+    document.getElementById('emailInput').value = emailText;
+    document.getElementById('emailBody').innerText = emailText;
+    document.getElementById('mediaPreview').innerText = 'No media uploaded.';
+    
+    document.getElementById('trustScore').innerText = '28%';
+    document.getElementById('phishBadge').innerText = 'Phishing: 82%';
+    document.getElementById('deepBadge').innerText = 'Deepfake: 15%';
+    
+    const flags = document.getElementById('flagsList');
+    flags.innerHTML = '';
+    const flag = document.createElement('div'); flag.className='flag'; flag.innerText='Suspicious link: secure-verify-login.com'; flags.appendChild(flag);
+
+    document.getElementById('explainText').innerText = 'Phishing detected: suspicious link present.\nDeepfake score: low (demo placeholder)\nSynTrust Score: 28% — untrustworthy';
+    log('Demo Phishing scenario loaded.');
+  }
+
+  // Demo 2: Deepfake Media scenario
+  function demoDeepfake(){
+    document.getElementById('emailInput').value = '';
+    document.getElementById('emailBody').innerText = 'No email content.';
+    document.getElementById('mediaPreview').innerText = 'Facial artifact inconsistency detected';
+    
+    document.getElementById('trustScore').innerText = '36%';
+    document.getElementById('phishBadge').innerText = 'Phishing: —';
+    document.getElementById('deepBadge').innerText = 'Deepfake: 64%';
+    
+    const flags = document.getElementById('flagsList');
+    flags.innerHTML = '';
+    const flag = document.createElement('div'); flag.className='flag'; flag.innerText='Facial artifact inconsistency detected'; flags.appendChild(flag);
+
+    document.getElementById('explainText').innerText = 'Deepfake detected: facial inconsistency.\nPhishing not detected.\nSynTrust Score: 36% — untrustworthy';
+    log('Demo Deepfake scenario loaded.');
+  }
+
+  // keep existing analyze logic
+  function analyze(){
+    const emailText = document.getElementById('emailInput').value;
+    const mediaFile = document.getElementById('mediaFile').files[0];
+
+    if(emailText && emailText.trim().length) {
+      document.getElementById('emailBody').innerText = emailText;
+      document.getElementById('emailBody').innerHTML = highlightLinks(emailText);
+    }
+
+    // lightweight detection
+    const phishRes = detectPhishing(emailText);
+    const deepRes = detectDeepfake(mediaFile);
+
+    if(mediaFile){
+      const pr = document.getElementById('mediaPreview');
+      if(mediaFile.type.startsWith('image/')){
+        const url = URL.createObjectURL(mediaFile);
+        pr.innerHTML = `<img src="${url}" style="max-width:100%; max-height:240px; border-radius:8px; display:block" />`;
+      } else {
+        pr.innerHTML = `<div style="color:var(--muted);">Video uploaded • preview not supported in prototype</div>`;
+      }
+    }
+
+    const pw = parseFloat(document.getElementById('phishWeight').value);
+    const dw = parseFloat(document.getElementById('deepWeight').value);
+
+    const phScore = phishRes ? phishRes.score : null;
+    const dpScore = deepRes ? deepRes.score : null;
+
+    let trust = 100;
+    let details = [];
+    if(phScore !== null && dpScore !== null){
+      const combined = ((phScore * pw) + (dpScore * dw)) / ((pw + dw)||1);
+      trust = Math.max(0, 100 - combined);
+      details.push(`Phishing(${phScore}%) * ${pw} + Deepfake(${dpScore}%) * ${dw}`);
+    } else if(phScore !== null){
+      trust = Math.max(0, 100 - phScore * pw);
+      details.push(`Phishing(${phScore}%)`);
+    } else if(dpScore !== null){
+      trust = Math.max(0, 100 - dpScore * dw);
+      details.push(`Deepfake(${dpScore}%)`);
+    }
+
+    document.getElementById('trustScore').innerText = Math.round(trust) + '%';
+    document.getElementById('phishBadge').innerText = 'Phishing: ' + (phScore !== null ? phScore + '%' : '—');
+    document.getElementById('deepBadge').innerText = 'Deepfake: ' + (dpScore !== null ? dpScore + '%' : '—');
+
+    const flags = document.getElementById('flagsList');
+    flags.innerHTML = '';
+    if(phishRes && phishRes.flaggedLinks.length){
+      phishRes.flaggedLinks.forEach(l => { const el=document.createElement('div'); el.className='flag'; el.innerText='Suspicious link: '+l; flags.appendChild(el); });
+    }
+    if(phishRes && phishRes.reasons.length){
+      phishRes.reasons.forEach(r => { const el=document.createElement('div'); el.className='badge'; el.style.background='rgba(6,182,212,0.06)'; el.style.color='var(--accent)'; el.innerText=r; flags.appendChild(el); });
+    }
+    if(deepRes){ const el=document.createElement('div'); el.className='flag'; el.innerText='Deepfake risk: '+deepRes.score+'%'; flags.appendChild(el); }
+    if(!flags.childElementCount){ flags.innerHTML='<div class="small">No suspicious elements detected.</div>'; }
+
+    const expl = document.getElementById('explainText');
+    const explainParts=[];
+    if(phishRes){ explainParts.push(`Phishing: ${phishRes.score}% — ${phishRes.reasons.slice(0,3).join('; ') || 'No explicit flagged words.'}`);}
+    if(deepRes){ explainParts.push(`Deepfake: ${deepRes.score}% — ${deepRes.reason}`);}
+    explainParts.push(`Score Calc: ${details.join(' | ')}`);
+    expl.innerText = explainParts.join('\n\n');
+
+    log('Analysis complete. '+ (phScore!==null ? `Phish:${phScore}% `:'') + (dpScore!==null ? `Deep:${dpScore}% `:'') + `Trust:${Math.round(trust)}%`);
+  }
+
+  function highlightLinks(text){
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, function(url){ return `<span class="highlight">${url}</span>`; }).replace(/\n/g,'<br>');
+  }
+
+  function downloadReport(){
+    const report = {
+      time: new Date().toISOString(),
+      trust: document.getElementById('trustScore').innerText,
+      phishing: document.getElementById('phishBadge').innerText,
+      deepfake: document.getElementById('deepBadge').innerText,
+      explain: document.getElementById('explainText').innerText
+    };
+    const blob = new Blob([JSON.stringify(report,null,2)],{type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download='syntruth_report.json'; a.click();
+    URL.revokeObjectURL(url);
+    log('Report downloaded.');
+  }
+
+  // lightweight detection functions
+  function detectPhishing(text){
+    if(!text||text.trim().length<10) return null;
+    const suspiciousWords=['verify','login','password','urgent','bank','account','suspend','click here','verify account'];
+    let score=0; let reasons=[];
+    const lower=text.toLowerCase();
+    suspiciousWords.forEach(w=>{ if(lower.includes(w)){ score+=15; reasons.push(`Contains suspicious word: "${w}"`); } });
+    const urlRegex=/https?:\/\/[^\s]+/g;
+    const links=text.match(urlRegex)||[];
+    const flaggedLinks=[];
+    links.forEach(l=>{ if(/login|verify|secure|account|update|verify-now/.test(l.toLowerCase())){ score+=20; flaggedLinks.push(l); } });
+    score=Math.min(score,100);
+    return {score,reasons,links,flaggedLinks};
+  }
+
+  function detectDeepfake(file){
+    if(!file) return null;
+    const base=Math.abs(Array.from(file.name).reduce((s,c)=>s+c.charCodeAt(0),0))%50;
+    const randomPart=Math.floor(Math.random()*40);
+    const score=Math.min(100,base+randomPart+20);
+    return {score, reason:'Visual anomalies detected (demo heuristic).'};
+  }
+
+  function showTab(tab){ log(`Switching to tab: ${tab}`); }
+
+  updateUIDefaults();
+  log('SynTruth prototype ready.');
+</script>
+</body>
+</html>

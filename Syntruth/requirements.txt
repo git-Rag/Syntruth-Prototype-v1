@@ -1,0 +1,6 @@
+streamlit
+transformers
+torch          # CPU version by default; to use GPU, install appropriate torch wheel
+deepface
+opencv-python
+regex
